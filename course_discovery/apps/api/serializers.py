@@ -984,6 +984,13 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
 
         return super().validate(attrs)
 
+    def update(self, instance, validated_data):
+        """
+        Overrides update method to ignore variant_id from validated_data in case of update (PUT/PATCH) request.
+        """
+        validated_data.pop('variant_id', None)
+        return super().update(instance, validated_data)
+
 
 class CourseRunSerializer(MinimalCourseRunSerializer):
     """Serializer for the ``CourseRun`` model."""

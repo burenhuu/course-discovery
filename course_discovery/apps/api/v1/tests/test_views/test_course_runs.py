@@ -508,16 +508,22 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
     @responses.activate
     def test_partial_update(self):
-        """ Verify the endpoint supports partially updating a course_run's fields, provided user has permission. """
+        """
+        Verify the endpoint supports partially updating a course_run's fields except for variant_id,
+        provided user has permission.
+        """
         self.mock_patch_to_studio(self.draft_course_run.key)
 
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.draft_course_run.key})
 
         expected_min_effort = 867
         expected_max_effort = 5309
+        prev_variant_id = self.draft_course_run.variant_id
+        variant_id = str(uuid.uuid4())
         data = {
             'max_effort': expected_max_effort,
             'min_effort': expected_min_effort,
+            'variant_id': variant_id,
         }
 
         # Update this course_run with the new info
@@ -529,6 +535,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
         assert self.draft_course_run.max_effort == expected_max_effort
         assert self.draft_course_run.min_effort == expected_min_effort
+        assert self.draft_course_run.variant_id == prev_variant_id
 
     def test_partial_update_no_studio_url(self):
         """ Verify we skip pushing when no studio url is set. """
