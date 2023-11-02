@@ -2,6 +2,7 @@ import datetime
 import urllib
 from unittest import mock
 from urllib.parse import urlencode
+import uuid
 
 import ddt
 import pytest
@@ -168,13 +169,14 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.assertDictEqual(response.data, {
             'course': ['This field is required.'],
         })
-
+        variant_id = str(uuid.uuid4())
         # Send minimum requested
         response = self.client.post(url, {
             'course': course.key,
             'start': '2000-01-01T00:00:00Z',
             'end': '2001-01-01T00:00:00Z',
             'run_type': str(self.course_run_type.uuid),
+            'variant_id': variant_id,
         }, format='json')
         assert response.status_code == 201
         new_course_run = CourseRun.everything.get(key=new_key)
@@ -182,6 +184,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert new_course_run.pacing_type == 'instructor_paced'
         # default we provide
         assert str(new_course_run.end) == '2001-01-01 00:00:00+00:00'
+        assert str(new_course_run.variant_id) == variant_id
         # spot check that input made it
         assert new_course_run.draft
 

@@ -910,7 +910,7 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
     run_type = serializers.SlugRelatedField(required=True, slug_field='uuid', source='type',
                                             queryset=CourseRunType.objects.all())
     term = serializers.CharField(required=False, write_only=True)
-    variant_id = serializers.UUIDField(allow_null=True, required=False, read_only=True)
+    variant_id = serializers.UUIDField(allow_null=True, required=False)
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
