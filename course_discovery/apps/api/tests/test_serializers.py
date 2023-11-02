@@ -638,7 +638,7 @@ class MinimalCourseRunBaseTestSerializer(TestCase):
             'is_enrollable': course_run.is_enrollable,
             'is_marketable': course_run.is_marketable,
             'availability': course_run.availability,
-            'variant_id': course_run.variant_id,
+            'variant_id': str(course_run.variant_id),
         }
 
 
