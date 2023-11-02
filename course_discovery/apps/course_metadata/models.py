@@ -2160,6 +2160,11 @@ class CourseRun(ManageHistoryMixin, DraftModelMixin, CachedMixin, TimeStampedMod
         help_text=_('This calculated field signifies if this course run is in the enterprise subscription catalog'),
     )
 
+    variant_id = models.UUIDField(
+        blank=False, null=True, editable=True,
+        help_text=_('The identifier for a product variant.')
+    )
+
     STATUS_CHANGE_EXEMPT_FIELDS = [
         'start',
         'end',
