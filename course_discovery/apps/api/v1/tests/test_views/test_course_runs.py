@@ -1,8 +1,8 @@
 import datetime
 import urllib
+import uuid
 from unittest import mock
 from urllib.parse import urlencode
-import uuid
 
 import ddt
 import pytest
