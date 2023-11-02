@@ -910,6 +910,7 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
     run_type = serializers.SlugRelatedField(required=True, slug_field='uuid', source='type',
                                             queryset=CourseRunType.objects.all())
     term = serializers.CharField(required=False, write_only=True)
+    variant_id = serializers.UUIDField(allow_null=True, required=False, read_only=True)
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -927,7 +928,8 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
         model = CourseRun
         fields = ('key', 'uuid', 'title', 'external_key', 'image', 'short_description', 'marketing_url',
                   'seats', 'start', 'end', 'go_live_date', 'enrollment_start', 'enrollment_end', 'weeks_to_complete',
-                  'pacing_type', 'type', 'run_type', 'status', 'is_enrollable', 'is_marketable', 'term', 'availability')
+                  'pacing_type', 'type', 'run_type', 'status', 'is_enrollable', 'is_marketable', 'term', 'availability',
+                  'variant_id')
 
     def get_marketing_url(self, obj):
         include_archived = self.context.get('include_archived')
