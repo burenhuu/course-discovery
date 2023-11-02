@@ -268,7 +268,7 @@ class CourseTypeAdmin(admin.ModelAdmin):
 @admin.register(CourseRun)
 class CourseRunAdmin(SimpleHistoryAdmin):
     inlines = (SeatInline,)
-    list_display = ('uuid', 'key', 'external_key', 'title', 'status', 'draft', 'variant_id')
+    list_display = ('uuid', 'key', 'external_key', 'title', 'status', 'draft')
     list_filter = (
         'course__partner',
         'hidden',
@@ -290,15 +290,16 @@ class CourseRunAdmin(SimpleHistoryAdmin):
         """
         Make UUID field editable for draft if flag is enabled.
         """
-        if (not obj) or (not obj.variant_id and request.user.is_superuser and 'variant_id' in self.readonly_fields):
-            self.readonly_fields.remove('variant_id')
+        readonly_fields = self.readonly_fields.copy()
+        if (not obj) or (not obj.variant_id and request.user.is_superuser):
+            readonly_fields.remove('variant_id')
         if obj and obj.draft:
             flag_name = f'{obj._meta.app_label}.{obj.__class__.__name__}.make_uuid_editable'
             flag = get_waffle_flag_model().get(flag_name)
             if flag.is_active(request):
-                return self.readonly_fields
+                return readonly_fields
 
-        return self.readonly_fields + ['uuid']
+        return readonly_fields + ['uuid']
 
     def response_change(self, request, obj):
         if self.save_error:
