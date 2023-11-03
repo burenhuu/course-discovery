@@ -539,7 +539,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert self.draft_course_run.max_effort == expected_max_effort
         assert self.draft_course_run.min_effort == expected_min_effort
         assert self.draft_course_run.variant_id == prev_variant_id
-        
+
     def test_partial_update_with_waffle_switch_variant_id_editable_enable(self):
         """
         Verify the endpoint supports partially updating a course_run's fields including variant_id
@@ -568,7 +568,6 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert self.draft_course_run.max_effort == expected_max_effort
         assert self.draft_course_run.min_effort == expected_min_effort
         assert str(self.draft_course_run.variant_id) == variant_id
-
 
     def test_partial_update_no_studio_url(self):
         """ Verify we skip pushing when no studio url is set. """
