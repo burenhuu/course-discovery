@@ -30,7 +30,9 @@ from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseFactory, CourseRunFactory, CourseRunTypeFactory, CourseTypeFactory, OrganizationFactory,
     PersonFactory, ProgramFactory, SeatFactory, SourceFactory, SubjectFactory, TrackFactory
 )
-from course_discovery.apps.course_metadata.toggles import IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
+from course_discovery.apps.course_metadata.toggles import (
+    IS_COURSE_RUN_VARIANT_ID_EDITABLE, IS_SUBDIRECTORY_SLUG_FORMAT_ENABLED
+)
 from course_discovery.apps.course_metadata.utils import data_modified_timestamp_update, is_valid_slug_format
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
@@ -509,8 +511,8 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
     @responses.activate
     def test_partial_update(self):
         """
-        Verify the endpoint supports partially updating a course_run's fields except for variant_id,
-        provided user has permission.
+        Verify the endpoint supports partially updating a course_run's fields except for variant_id
+        (with waffle switch off), provided user has permission.
         """
         self.mock_patch_to_studio(self.draft_course_run.key)
 
@@ -527,8 +529,9 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         }
 
         # Update this course_run with the new info
-        response = self.client.patch(url, data, format='json')
-        assert response.status_code == 200
+        with override_waffle_switch(IS_COURSE_RUN_VARIANT_ID_EDITABLE, active=False):
+            response = self.client.patch(url, data, format='json')
+            assert response.status_code == 200
 
         # refresh and make sure we have the new effort levels
         self.draft_course_run.refresh_from_db()
@@ -536,6 +539,36 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert self.draft_course_run.max_effort == expected_max_effort
         assert self.draft_course_run.min_effort == expected_min_effort
         assert self.draft_course_run.variant_id == prev_variant_id
+        
+    def test_partial_update_with_waffle_switch_variant_id_editable_enable(self):
+        """
+        Verify the endpoint supports partially updating a course_run's fields including variant_id
+        """
+        self.mock_patch_to_studio(self.draft_course_run.key)
+
+        url = reverse('api:v1:course_run-detail', kwargs={'key': self.draft_course_run.key})
+
+        expected_min_effort = 867
+        expected_max_effort = 5309
+        variant_id = str(uuid.uuid4())
+        data = {
+            'max_effort': expected_max_effort,
+            'min_effort': expected_min_effort,
+            'variant_id': variant_id,
+        }
+
+        # Update this course_run with the new info
+        with override_waffle_switch(IS_COURSE_RUN_VARIANT_ID_EDITABLE, active=True):
+            response = self.client.patch(url, data, format='json')
+            assert response.status_code == 200
+
+        # refresh and make sure we have the new effort levels
+        self.draft_course_run.refresh_from_db()
+
+        assert self.draft_course_run.max_effort == expected_max_effort
+        assert self.draft_course_run.min_effort == expected_min_effort
+        assert str(self.draft_course_run.variant_id) == variant_id
+
 
     def test_partial_update_no_studio_url(self):
         """ Verify we skip pushing when no studio url is set. """

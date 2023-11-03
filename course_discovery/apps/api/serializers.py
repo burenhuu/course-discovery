@@ -45,6 +45,7 @@ from course_discovery.apps.course_metadata.models import (
     ProductMeta, ProductValue, Program, ProgramLocationRestriction, ProgramSubscription, ProgramSubscriptionPrice,
     ProgramType, Ranking, Seat, SeatType, Source, Specialization, Subject, TaxiForm, Topic, Track, Video
 )
+from course_discovery.apps.course_metadata.toggles import IS_COURSE_RUN_VARIANT_ID_EDITABLE
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api.serializers import GroupUserSerializer
@@ -988,7 +989,8 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
         """
         Overrides update method to ignore variant_id from validated_data in case of update (PUT/PATCH) request.
         """
-        validated_data.pop('variant_id', None)
+        if not IS_COURSE_RUN_VARIANT_ID_EDITABLE.is_enabled():
+            validated_data.pop('variant_id', None)
         return super().update(instance, validated_data)
 
 
