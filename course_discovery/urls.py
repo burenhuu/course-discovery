@@ -70,15 +70,10 @@ if 'course_discovery.apps.edx_catalog_extensions' in settings.INSTALLED_APPS:
     urlpatterns.append(
         path('extensions/', include('course_discovery.apps.edx_catalog_extensions.urls', namespace='extensions'))
     )
-
-if settings.DEBUG:  # pragma: no cover
-    # We need this url pattern to serve user uploaded assets according to
-    # https://docs.djangoproject.com/en/1.11/howto/static-files/#serving-files-uploaded-by-a-user-during-development
-    # This was modified to use LOCAL_MEDIA_URL to be able to server static files to external services like edx-mktg
-    urlpatterns += static(settings.LOCAL_DISCOVERY_MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    # If using gunicorn instead of runserver in development, also need to explicitly serve static files
-    if settings.STATIC_SERVE_EXPLICITLY:
+urlpatterns += static(settings.LOCAL_DISCOVERY_MEDIA_URL, document_root=settings.MEDIA_ROOT)
+if settings.STATIC_SERVE_EXPLICITLY:
         urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+if settings.DEBUG:  # pragma: no cover
     if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
         import debug_toolbar
 
