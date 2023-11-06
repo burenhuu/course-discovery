@@ -70,7 +70,7 @@ if 'course_discovery.apps.edx_catalog_extensions' in settings.INSTALLED_APPS:
     urlpatterns.append(
         path('extensions/', include('course_discovery.apps.edx_catalog_extensions.urls', namespace='extensions'))
     )
-urlpatterns += static(settings.LOCAL_DISCOVERY_MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.STATIC_SERVE_EXPLICITLY:
         urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 if settings.DEBUG:  # pragma: no cover
